@@ -1,0 +1,120 @@
+<!DOCTYPE html> 
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>テスト画面</title>
+  <style>
+    body { font-family: sans-serif; }
+    .btn { padding: 10px 20px; background: #ccc; border: none; cursor: pointer; }
+    .form-group { margin-bottom: 15px; }
+    .error { color: red; font-size: 0.9em; margin-left: 5px; }
+    label span { color: red; }
+  </style>
+</head>
+<body>
+  <h1>テスト画面</h1>
+  <form id="myForm" novalidate>
+    <!-- 文字列入力（必須） -->
+    <div class="form-group">
+      <label for="textInput">文字列<span>*</span></label><br>
+      <input type="text" id="textInput" name="textInput" required>
+      <span class="error" id="textError"></span>
+    </div>
+    <!-- 数字入力（任意） -->
+    <div class="form-group">
+      <label for="numberInput">数字</label><br>
+      <!-- 入力は半角数字のみ。例：12345.67 -->
+      <input type="text" id="numberInput" name="numberInput" placeholder="例: 12345.67">
+      <span class="error" id="numberError"></span>
+    </div>
+    <!-- 日付入力（必須） -->
+    <div class="form-group">
+      <label for="dateInput">日付<span>*</span></label><br>
+      <!-- 入力形式は YYYY/MM/DD -->
+      <input type="text" id="dateInput" name="dateInput" placeholder="YYYY/MM/DD" required>
+      <span class="error" id="dateError"></span>
+    </div>
+    <button type="button" class="btn" id="submitButton">送信</button>
+  </form>
+  
+  <script>
+    // 各項目の検証関数
+    function validateText() {
+      var textInput = document.getElementById('textInput');
+      var textError = document.getElementById('textError');
+      if (textInput.value.trim() === '') {
+        textError.textContent = '必須項目です。';
+        return false;
+      } else {
+        textError.textContent = '';
+        return true;
+      }
+    }
+    
+    function validateNumber() {
+      var numberInput = document.getElementById('numberInput');
+      var numberError = document.getElementById('numberError');
+      // 入力が空の場合は任意項目として有効とする
+      if (numberInput.value.trim() === '') {
+        numberError.textContent = '';
+        return true;
+      }
+      // 正規表現：整数部1～5桁、オプションで小数点以下1～2桁
+      var reg = /^[0-9]{1,5}(\.[0-9]{1,2})?$/;
+      if (!reg.test(numberInput.value)) {
+        numberError.textContent = '数字は最大99999.99まで、半角数字のみ入力可能です。';
+        return false;
+      } else {
+        // 数値に変換して最大値チェック＆小数点第2位までの表示に整形
+        var num = parseFloat(numberInput.value);
+        if(num > 99999.99) {
+          numberError.textContent = '数字は最大99999.99まで入力可能です。';
+          return false;
+        }
+        // 整形して表示
+        numberInput.value = num.toFixed(2);
+        numberError.textContent = '';
+        return true;
+      }
+    }
+    
+    function validateDate() {
+      var dateInput = document.getElementById('dateInput');
+      var dateError = document.getElementById('dateError');
+      // 正規表現：YYYY/MM/DD。月は01～12、日付は01～31（※簡易チェック）
+      var reg = /^\d{4}\/(0[1-9]|1[0-2])\/(0[1-9]|[12][0-9]|3[01])$/;
+      if (dateInput.value.trim() === '') {
+        dateError.textContent = '必須項目です。';
+        return false;
+      } else if (!reg.test(dateInput.value)) {
+        dateError.textContent = '日付はYYYY/MM/DD形式で入力してください。';
+        return false;
+      } else {
+        dateError.textContent = '';
+        return true;
+      }
+    }
+    
+    // 各項目でフォーカスが外れた時の検証
+    document.getElementById('textInput').addEventListener('blur', validateText);
+    document.getElementById('numberInput').addEventListener('blur', validateNumber);
+    document.getElementById('dateInput').addEventListener('blur', validateDate);
+    
+    // 送信ボタン押下時の処理
+    document.getElementById('submitButton').addEventListener('click', function() {
+      var validText = validateText();
+      var validNumber = validateNumber();
+      var validDate = validateDate();
+      
+      // 必須項目の検証（数字は任意）
+      if (!validText || !validNumber || !validDate) {
+        alert('入力に誤りがあります。');
+        return;
+      }
+      
+      // 入力が全て正しい場合、次の画面へ遷移
+      window.location.href = 'complete.html';
+    });
+  </script>
+</body>
+</html>
